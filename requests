@@ -1,0 +1,102 @@
+GET /airport/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+GET /_cat/indices?v
+GET /_cat/aliases?v
+
+POST /_aliases
+{
+    "actions" : [
+        { "add" : { "index" : "airport", "alias" : "alias1" } }
+    ]
+}
+
+
+POST _reindex
+{
+  "source": {
+    "index": "twitter"
+  },
+  "dest": {
+    "index": "new_twitter"
+  }
+}
+
+DELETE /airport
+
+GET /airport/_mapping/
+
+PUT airport
+{
+    "settings" : {
+        "number_of_shards" : 1
+    },
+    "mappings" : {
+        "_doc" : {
+            "properties" : {
+                "location" : { "type" : "geo_point" }
+            }
+        }
+    }
+}
+
+POST /airport/_search
+{
+  "suggest": {
+    "text" : "tring out Elasticsearch",
+    "my-suggest-1" : {
+      "term" : {
+        "field" : "name"
+      }
+    }
+  }
+}
+
+POST /airport/_search
+{
+  "query": {
+      "prefix":  { "name.normalize": "ha" }
+  }
+}
+
+GET /airport/_search
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match_all": {
+        }
+      },
+      "should": [{
+        "prefix": {
+          "name.normalize": "ham"
+        }
+      }]
+    }
+  }
+}
+
+
+GET /airport/_search
+{
+    "query": {
+        "bool" : {
+            "must" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "geo_distance" : {
+                    "distance" : "200km",
+                    "location" : {
+                        "lat" : 40,
+                        "lon" : -70
+                    }
+                }
+            }
+        }
+    }
+}
